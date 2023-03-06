@@ -1,15 +1,18 @@
 package com.geekster.Doctor.controller;
 
+import com.geekster.Doctor.Util.CommonUtils;
 import com.geekster.Doctor.dao.DoctorRepository;
 import com.geekster.Doctor.model.Doctor;
 import com.geekster.Doctor.model.Patient;
 import com.geekster.Doctor.service.PatientService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -21,14 +24,23 @@ public class PatientController {
     @Autowired
     PatientService service;
 
-    @PostMapping(value = "/patient")
-    public String savePatient(@RequestBody String patientRequest) {
+    @PostMapping(value = "/admit-patient")
+    public ResponseEntity<String> savePatient(@RequestBody String patientRequest) {
 
         JSONObject json = new JSONObject(patientRequest);
-        Patient patient = setPatient(json);
-        service.savePatient(patient);
+        List<String> validationList = CommonUtils.validatePatient(json);
+        if(validationList.isEmpty()) {
+            Patient patient = setPatient(json);
+            service.savePatient(patient);
+            return new ResponseEntity<>("Patient saved", HttpStatus.CREATED);
+        }else {
+            String[] answer = Arrays.copyOf(
+                    validationList.toArray(), validationList.size(), String[].class);
 
-        return "Saved patient";
+            return new ResponseEntity<>("Please pass these mandatory parameters- " +
+                    Arrays.toString(answer), HttpStatus.BAD_REQUEST);
+
+        }
 
     }
 
@@ -57,7 +69,7 @@ public class PatientController {
 
 
     }
-    @GetMapping(value = "/patient-by-id")
+    @GetMapping(value = "/get-patient-by-id")
     public List<Patient> getPatientbyid(@RequestParam String patientId, @RequestParam String docterId){
 
       return this.service.getPatient(patientId,docterId);

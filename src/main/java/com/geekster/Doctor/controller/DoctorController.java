@@ -19,7 +19,7 @@ public class DoctorController {
     @Autowired
     DoctorService service;
 
-    @PostMapping(value = "/doctor")
+    @PostMapping(value = "/add-doctor")
     public ResponseEntity<String> saveDoctor(@RequestBody String requestDoctor) {
 
         JSONObject json = new JSONObject(requestDoctor);
@@ -42,13 +42,13 @@ public class DoctorController {
     }
 
 
-    @GetMapping(value = "/doctor")
+    @GetMapping(value = "/get-all-doctor")
     public List<Doctor> getDoctor(@Nullable @RequestParam String doctorId) {
 
         return service.getDoctor(doctorId);
     }
 
-    @GetMapping("/getBy-exp")
+    @GetMapping("/get-doctor-By-exp")
     public List<Doctor> getbyExp(){
         return service.experiance();
     }
